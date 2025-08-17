@@ -6,7 +6,7 @@ psycopg2-binary
 dj-database-url
 
 # Supabase
-supabase-py
+supabase
 
 # Environment variables
 python-dotenv

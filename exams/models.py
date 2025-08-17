@@ -35,3 +35,11 @@ class Result(models.Model):
         ],
         default='manual'
     )
+    security_violations = models.TextField(
+        blank=True,
+        null=True,
+        help_text="JSON data containing security violation details"
+    )
+    
+    class Meta:
+        unique_together = ['user', 'quiz']  # Prevent multiple attempts 

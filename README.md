@@ -2,6 +2,9 @@
 
 A comprehensive web-based examination system built with Django that allows educational institutions to conduct online quizzes and manage academic content efficiently.
 
+Check out the live demo here: [Exam Portal Live](https://examination-bmiit.onrender.com/)
+
+
 ## 🚀 Features
 
 ### User Management
@@ -228,7 +231,7 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 For support and questions:
 - Create an issue in the repository
-- Contact: [your-email@example.com]
+- Contact:Nileshpar835@gmail.com
 
 ## 🔮 Future Enhancements
 

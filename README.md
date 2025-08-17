@@ -245,4 +245,5 @@ For support and questions:
 - [ ] Grade book management
 
 ---
+## Made with ❤️ by Nilesh Parmar
 

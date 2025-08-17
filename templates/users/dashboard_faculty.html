@@ -102,23 +102,25 @@
 </section>
 <section id="announcements" class="mb-5">
     <div class="card">
-                <div class="card-header">
-                    <h4>Latest Announcements</h4><a href="{% url 'materials:news_create' %}" class="btn btn-primary">Create Announcement</a>
-
-                </div>
-                <div class="card-body">
-                    <ul class="list-group">
-                        {% for ann in announcements %}
-                        <li class="list-group-item">
-                            <strong>{{ ann.title }}</strong> – {{ ann.created_at|date:"SHORT_DATE_FORMAT" }}
-                        </li>
-                        {% empty %}
-                        <li class="list-group-item text-muted">No announcements</li>
-                        {% endfor %}
-                    </ul>
-                </div>
-            </div>
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h4 class="mb-0">Latest Announcements</h4>
+            <a href="{% url 'materials:news_create' %}" class="btn btn-primary">Create Announcement</a>
+        </div>
+        <div class="card-body">
+            <ul class="list-group list-group-flush">
+                {% for ann in announcements %}
+                    <li class="list-group-item">
+                        <strong>{{ ann.title }}</strong> : {{ ann.content }} 
+                        <span class="text-muted">– <time datetime="{{ ann.created_at|date:'Y-m-d' }}">{{ ann.created_at|date:"SHORT_DATE_FORMAT" }}</time></span>
+                    </li>
+                {% empty %}
+                    <li class="list-group-item text-muted">No announcements</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
 </section>
+
 
 
             <section id="student-results" class="mb-5">

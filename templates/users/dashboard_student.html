@@ -34,7 +34,27 @@
                 </a>
             </div>
 
+            <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h4>Latest Announcements </h4>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group">
+                        {% for ann in announcements %}
+                         <li class="list-group-item">
+                        <strong>{{ ann.title }}</strong> : {{ ann.content }} 
+                        <span class="text-muted">– <time datetime="{{ ann.created_at|date:'Y-m-d' }}">{{ ann.created_at|date:"SHORT_DATE_FORMAT" }}</time></span>
+                    </li>
+                        {% empty %}
+                        <li class="list-group-item text-muted">No announcements</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
             <section id="upcoming" class="mb-4">
+                
                 <h3>Available Quizzes</h3>
                 <div class="row">
                     {% for quiz in upcoming_quizzes %}

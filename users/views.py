@@ -148,7 +148,6 @@ def access_denied(request):
     """
     return render(request, 'users/access_denied.html')
 
-
 @login_required
 def dashboard(request):
     """
@@ -410,4 +409,5 @@ def delete_profile_picture(request):
             request.user.save()
             messages.success(request, 'Profile picture removed successfully.')
         return redirect('users:edit_profile')
+    return redirect('users:profile')        
     return redirect('users:profile')

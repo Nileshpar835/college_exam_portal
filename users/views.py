@@ -172,9 +172,17 @@ def dashboard(request):
         })
     elif role == 'STUDENT':
         from materials.models import StudyMaterial
+        
+        # Get upcoming quizzes with completion status
+        upcoming_quizzes = Quiz.objects.order_by('-created_at')[:10]
+        for quiz in upcoming_quizzes:
+            try:
+                quiz.user_results = Result.objects.get(user=request.user, quiz=quiz)
+            except Result.DoesNotExist:
+                quiz.user_results = None
+        
         context.update({
-
-            'upcoming_quizzes': Quiz.objects.order_by('-created_at')[:10],
+            'upcoming_quizzes': upcoming_quizzes,
             'materials': StudyMaterial.objects.order_by('-created_at')[:10],
             'user_results': Result.objects.filter(user=request.user).order_by('-completed_at')[:10],
         })

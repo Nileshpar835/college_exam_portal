@@ -5,6 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.urls import reverse
 from django.conf import settings
 from django.shortcuts import get_object_or_404
+from django.http import HttpResponseRedirect
 
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
@@ -75,8 +76,13 @@ def register(request):
 
 def login_view(request):
     """
-    Handle user login with email verification check.
+    Handle user login with email verification check and unauthorized access.
     """
+    # Check if user is trying to access a protected page
+    next_url = request.GET.get('next')
+    if next_url and not request.user.is_authenticated:
+        messages.error(request, 'You must be logged in to access that page.')
+    
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
@@ -112,6 +118,14 @@ def login_view(request):
             else:
                 login(request, user)
                 messages.success(request, f'Welcome back, {user.username}!')
+                
+                # Handle next parameter for redirect after login
+                next_url = request.POST.get('next') or request.GET.get('next')
+                if next_url:
+                    # Validate the next URL is safe and belongs to our site
+                    if next_url.startswith('/') and not next_url.startswith('//'):
+                        return HttpResponseRedirect(next_url)
+                
                 return redirect('users:dashboard')
         else:
             print("Authentication failed")
@@ -146,7 +160,22 @@ def access_denied(request):
     """
     Safe page for unauthorized access attempts.
     """
-    return render(request, 'users/access_denied.html')
+    # Add context for better user experience
+    context = {
+        'message': 'You do not have permission to access this page.',
+        'redirect_url': reverse('users:login'),
+        'redirect_text': 'Go to Login'
+    }
+    
+    # If user is authenticated but doesn't have permission
+    if request.user.is_authenticated:
+        context.update({
+            'message': 'You do not have sufficient permissions to access this page.',
+            'redirect_url': reverse('users:dashboard'),
+            'redirect_text': 'Go to Dashboard'
+        })
+    
+    return render(request, 'users/access_denied.html', context)
 
 @login_required
 def dashboard(request):
@@ -409,5 +438,4 @@ def delete_profile_picture(request):
             request.user.save()
             messages.success(request, 'Profile picture removed successfully.')
         return redirect('users:edit_profile')
-    return redirect('users:profile')        
     return redirect('users:profile')

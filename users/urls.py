@@ -10,6 +10,7 @@ urlpatterns = [
     path('logout/', views.logout_view, name='logout'),
     path('verify-email/<uuid:token>/', views.verify_email, name='verify_email'),
     path('dashboard/', views.dashboard, name='dashboard'),
+    path('access-denied/', views.access_denied, name='access_denied'),
 
     # Profile management URLs
     path('profile/', views.profile, name='profile'),

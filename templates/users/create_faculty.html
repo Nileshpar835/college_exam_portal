@@ -1,0 +1,195 @@
+{% extends 'base.html' %}
+<style>
+    /* Faculty Account Form */
+
+/* Card look */
+.card.shadow {
+    border-radius: 16px;
+    border: none;
+    background: #fff;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    animation: fadeIn 0.5s ease;
+}
+
+/* Card title */
+.card-body h2 {
+    font-weight: 700;
+    font-size: 1.5rem;
+    color: #2a5298;
+}
+
+/* Alerts */
+.alert {
+    border-radius: 10px;
+    padding: 0.8rem 1rem;
+    font-size: 0.9rem;
+}
+
+/* Labels */
+.form-label {
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 6px;
+}
+
+/* Inputs, selects, textareas */
+.form-control, select, input[type="text"], input[type="email"], input[type="password"] {
+    border-radius: 10px;
+    border: 1px solid #d1d5db;
+    padding: 0.65rem 1rem;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+    width: 100%;
+    background: #f9fafb;
+}
+
+.form-control:focus, select:focus, input:focus {
+    border-color: #2a5298;
+    background: #fff;
+    box-shadow: 0 0 6px rgba(42,82,152,0.25);
+    outline: none;
+}
+
+/* Small helper text */
+.text-muted {
+    font-size: 0.8rem;
+}
+
+/* Error messages */
+.text-danger.small {
+    margin-top: 4px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+/* Buttons */
+.btn-success {
+    background: linear-gradient(90deg, #16a34a, #22c55e);
+    border: none;
+    font-weight: 600;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.btn-success:hover {
+    background: linear-gradient(90deg, #15803d, #16a34a);
+    transform: translateY(-2px);
+    box-shadow: 0 3px 8px rgba(0,0,0,0.15);
+}
+
+.btn-secondary {
+    border-radius: 8px;
+    background: #e5e7eb;
+    color: #374151;
+    font-weight: 500;
+}
+
+.btn-secondary:hover {
+    background: #d1d5db;
+}
+
+/* Fade-in animation */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+</style>
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow">
+            <div class="card-body p-5">
+                <h2 class="text-center mb-4">Create Faculty Account</h2>
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+                
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    
+                    <div class="form-group mb-3">
+                        <label for="{{ form.username.id_for_label }}" class="form-label">Username</label>
+                        {{ form.username }}
+                        {% if form.username.errors %}
+                            <div class="text-danger small">
+                                {% for error in form.username.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group mb-3">
+                        <label for="{{ form.email.id_for_label }}" class="form-label">Email Address</label>
+                        {{ form.email }}
+                        {% if form.email.errors %}
+                            <div class="text-danger small">
+                                {% for error in form.email.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group mb-3">
+                        <label for="{{ form.role.id_for_label }}" class="form-label">Role</label>
+                        {{ form.role }}
+                        <small class="text-muted">Role is set to Faculty</small>
+                        {% if form.role.errors %}
+                            <div class="text-danger small">
+                                {% for error in form.role.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group mb-3">
+                        <label for="{{ form.department.id_for_label }}" class="form-label">Department</label>
+                        {{ form.department }}
+                        {% if form.department.errors %}
+                            <div class="text-danger small">
+                                {% for error in form.department.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group mb-3">
+                        <label for="{{ form.password1.id_for_label }}" class="form-label">Password</label>
+                        {{ form.password1 }}
+                        {% if form.password1.errors %}
+                            <div class="text-danger small">
+                                {% for error in form.password1.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group mb-3">
+                        <label for="{{ form.password2.id_for_label }}" class="form-label">Confirm Password</label>
+                        {{ form.password2 }}
+                        {% if form.password2.errors %}
+                            <div class="text-danger small">
+                                {% for error in form.password2.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-success">Create Faculty Account</button>
+                        <a href="{% url 'users:dashboard' %}" class="btn btn-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

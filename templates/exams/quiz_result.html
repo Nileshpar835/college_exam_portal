@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header text-center">
+                    <h3>Quiz Results</h3>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-4">
+                        {% if result.passed %}
+                            <div class="alert alert-success">
+                                <h4><i class="fas fa-check-circle"></i> Congratulations! You Passed!</h4>
+                            </div>
+                        {% else %}
+                            <div class="alert alert-danger">
+                                <h4><i class="fas fa-times-circle"></i> Sorry, You Failed</h4>
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="row text-center mb-4">
+                        <div class="col-md-4">
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <h5>Your Score</h5>
+                                    <h2 class="{% if result.passed %}text-success{% else %}text-danger{% endif %}">
+                                        {{ result.score }}%
+                                    </h2>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <h5>Passing Score</h5>
+                                    <h2 class="text-info">{{ result.quiz.passing_score }}%</h2>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <h5>Status</h5>
+                                    <h2>
+                                        {% if result.passed %}
+                                            <span class="badge bg-success fs-6">PASSED</span>
+                                        {% else %}
+                                            <span class="badge bg-danger fs-6">FAILED</span>
+                                        {% endif %}
+                                    </h2>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card bg-light mb-4">
+                        <div class="card-body">
+                            <h5><strong>Quiz:</strong> {{ result.quiz.title }}</h5>
+                            <p><strong>Description:</strong> {{ result.quiz.description }}</p>
+                            <p><strong>Total Questions:</strong> {{ result.quiz.question_set.count }}</p>
+                            <p><strong>Quiz Duration:</strong> {{ result.quiz.duration }} minutes</p>
+                            <p><strong>Completed on:</strong> {{ result.completed_at|date:"F d, Y at g:i A" }}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center">
+                        <a href="{% url 'exams:quiz_list' %}" class="btn btn-primary">Back to Quizzes</a>
+                        <a href="{% url 'users:dashboard' %}" class="btn btn-secondary">Dashboard</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

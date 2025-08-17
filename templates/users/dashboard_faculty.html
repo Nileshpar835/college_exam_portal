@@ -1,0 +1,160 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3 col-lg-2 d-md-block bg-light sidebar">
+            <div class="position-sticky pt-3">
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'users:profile' %}">
+                            <i class="fas fa-user"></i> My Profile
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#my-quizzes">My Quizzes</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#materials">Study Materials</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#student-results">Student Results</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#announcements">Announcements</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Main content -->
+        <div class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+            <div class="pt-3 pb-2 mb-3 border-bottom d-flex justify-content-between align-items-center">
+                <h1>Welcome, {{ user.username }}</h1>
+                <a href="{% url 'users:profile' %}" class="btn btn-outline-primary">
+                    <i class="fas fa-user"></i> View Profile
+                </a>
+            </div>
+
+            <section id="my-quizzes" class="mb-5">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h3>My Quizzes</h3>
+                    <a href="{% url 'exams:quiz_create' %}" class="btn btn-primary">Create Quiz</a>
+                </div>
+                <div class="row">
+                    {% for quiz in created_quizzes %}
+                    <div class="col-md-4 mb-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ quiz.title }}</h5>
+                                <p class="text-muted">Created: {{ quiz.created_at|date }}</p>
+                                <a href="{% url 'exams:quiz_detail' quiz.id %}" class="btn btn-outline-primary">View Details</a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </section>
+
+             <section id="materials" class="mb-5">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h3>Study Materials</h3>
+                    <div class="btn-group">
+                        <a href="{% url 'materials:material_list' %}" class="btn btn-outline-primary">View All Materials</a>
+                        <a href="{% url 'materials:material_upload' %}" class="btn btn-primary">Add Study Material</a>
+                    </div>
+                </div>
+                <div class="row">
+                    {% for material in materials %}
+                    <div class="col-md-6 mb-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ material.title }}</h5>
+                                <p class="card-text">{{ material.description|truncatewords:15 }}</p>
+                                <p class="text-muted">Subject: {{ material.subject }}</p>
+                                <div class="d-flex gap-2">
+                                    {% if material.file_url %}
+                                        <a href="{{ material.file_url }}" class="btn btn-sm btn-primary" target="_blank">Download</a>
+                                    {% endif %}
+                                    {% if material.external_link %}
+                                        <a href="{{ material.external_link }}" class="btn btn-sm btn-secondary" target="_blank">View Resource</a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="card-footer text-muted">
+                                <small>Uploaded: {{ material.created_at|date }}</small>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="col-12">
+                        <div class="alert alert-info text-center">
+                            <h5>No study materials uploaded yet</h5>
+                            <p>Click "Add Study Material" to upload your first material.</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="col-md-6">
+        </div>
+    </div>
+</section>
+<section id="announcements" class="mb-5">
+    <div class="card">
+                <div class="card-header">
+                    <h4>Latest Announcements</h4><a href="{% url 'materials:news_create' %}" class="btn btn-primary">Create Announcement</a>
+
+                </div>
+                <div class="card-body">
+                    <ul class="list-group">
+                        {% for ann in announcements %}
+                        <li class="list-group-item">
+                            <strong>{{ ann.title }}</strong> – {{ ann.created_at|date:"SHORT_DATE_FORMAT" }}
+                        </li>
+                        {% empty %}
+                        <li class="list-group-item text-muted">No announcements</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+</section>
+
+
+            <section id="student-results" class="mb-5">
+                <h3>Recent Student Results</h3>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Student</th>
+                                <th>Quiz</th>
+                                <th>Score</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for result in student_results %}
+                            <tr>
+                                <td>{{ result.user.username }}</td>
+                                <td>{{ result.quiz.title }}</td>
+                                <td>{{ result.score }}%</td>
+                                <td>
+                                    {% if result.passed %}
+                                    <span class="badge bg-success">Passed</span>
+                                    {% else %}
+                                    <span class="badge bg-danger">Failed</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ result.completed_at|date }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+    </div>
+</div>
+{% endblock %}

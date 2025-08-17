@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h2>Available Quizzes</h2>
+    {% if user.role != 'STUDENT' %}
+        <a href="{% url 'exams:quiz_create' %}" class="btn btn-primary mb-3">Create New Quiz</a>
+    {% endif %}
+    
+    <div class="row">
+        {% for quiz in quizzes %}
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">{{ quiz.title }}</h5>
+                    <p class="card-text">{{ quiz.description|truncatewords:20 }}</p>
+                    <p>Duration: {{ quiz.duration }} minutes</p>
+                    <p>Questions: {{ quiz.question_set.count }}</p>
+                    <p class="text-muted">By: {{ quiz.creator.username }}</p>
+                    
+                    {% if user.role == 'STUDENT' %}
+                        {% with user_result=quiz.user_results %}
+                            {% if user_result %}
+                                <div class="alert alert-success mb-2">
+                                    <small>
+                                        <i class="fas fa-check-circle"></i> Completed
+                                        <br>Score: {{ user_result.score }}%
+                                        {% if user_result.passed %}
+                                            <span class="badge bg-success">Passed</span>
+                                        {% else %}
+                                            <span class="badge bg-danger">Failed</span>
+                                        {% endif %}
+                                    </small>
+                                </div>
+                                <div class="btn-group w-100" role="group">
+                                    <button class="btn btn-secondary" disabled>
+                                        <i class="fas fa-lock"></i> Completed
+                                    </button>
+                                    <a href="{% url 'exams:quiz_result' user_result.id %}" class="btn btn-outline-primary">
+                                        <i class="fas fa-eye"></i> View Result
+                                    </a>
+                                </div>
+                            {% else %}
+                                <div class="btn-group w-100" role="group">
+                                    <a href="{% url 'exams:quiz_attempt' quiz.id %}" class="btn btn-primary w-100">
+                                        <i class="fas fa-play"></i> Take Quiz
+                                    </a>
+                                </div>
+                            {% endif %}
+                        {% endwith %}
+                    {% else %}
+                        <div class="btn-group w-100" role="group">
+                            <a href="{% url 'exams:quiz_detail' quiz.id %}" class="btn btn-secondary">View Details</a>
+                            {% if user == quiz.creator or user.role == 'HOD' %}
+                                <a href="{% url 'exams:quiz_edit' quiz.id %}" class="btn btn-warning">Edit</a>
+                                <a href="{% url 'exams:quiz_delete' quiz.id %}" class="btn btn-danger">Delete</a>
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="alert alert-info text-center">
+                <h5>No quizzes available</h5>
+                <p>{% if user.role == 'STUDENT' %}Check back later for new quizzes.{% else %}Create your first quiz to get started.{% endif %}</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

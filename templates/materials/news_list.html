@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Announcements</h2>
+        {% if user.role != 'STUDENT' %}
+        <a href="{% url 'materials:news_create' %}" class="btn btn-primary">Create Announcement</a>
+        {% endif %}
+    </div>
+
+    <div class="row">
+        {% for news in news_list %}
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">{{ news.title }}</h5>
+                    <p class="card-text">{{ news.content }}</p>
+                    <div class="text-muted">
+                        Posted by {{ news.created_by.username }} on {{ news.created_at|date }}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

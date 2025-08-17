@@ -1,0 +1,137 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1>Users Management</h1>
+                <div>
+                    <a href="{% url 'users:create_faculty' %}" class="btn btn-success">Create Faculty</a>
+                    <a href="{% url 'users:dashboard' %}" class="btn btn-secondary">Back to Dashboard</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h4>Faculty Members ({{ faculty_list.count }})</h4>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Username</th>
+                                    <th>Email</th>
+                                    <th>Department</th>
+                                    <th>Status</th>
+                                    <th>Joined</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for faculty in faculty_list %}
+                                <tr>
+                                    <td>{{ faculty.username }}</td>
+                                    <td>{{ faculty.email }}</td>
+                                    <td>{{ faculty.department|default:"N/A" }}</td>
+                                    <td>
+                                        {% if faculty.is_active %}
+                                            <span class="badge bg-success">Active</span>
+                                        {% else %}
+                                            <span class="badge bg-danger">Inactive</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ faculty.date_joined|date:"M d, Y" }}</td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            <a href="{% url 'users:edit_user' faculty.id %}" class="btn btn-outline-primary btn-sm" title="Edit">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <a href="{% url 'users:toggle_user_status' faculty.id %}" class="btn btn-outline-warning btn-sm" 
+                                               onclick="return confirm('Are you sure you want to {% if faculty.is_active %}deactivate{% else %}activate{% endif %} this user?')" title="{% if faculty.is_active %}Deactivate{% else %}Activate{% endif %}">
+                                                <i class="fas fa-{% if faculty.is_active %}ban{% else %}check{% endif %}"></i>
+                                            </a>
+                                            <a href="{% url 'users:delete_user' faculty.id %}" class="btn btn-outline-danger btn-sm" title="Delete">
+                                                <i class="fas fa-trash"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="6" class="text-center text-muted">No faculty members found</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h4>Students ({{ student_list.count }})</h4>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Username</th>
+                                    <th>Email</th>
+                                    <th>Department</th>
+                                    <th>Status</th>
+                                    <th>Joined</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for student in student_list %}
+                                <tr>
+                                    <td>{{ student.username }}</td>
+                                    <td>{{ student.email }}</td>
+                                    <td>{{ student.department|default:"N/A" }}</td>
+                                    <td>
+                                        {% if student.is_active %}
+                                            <span class="badge bg-success">Active</span>
+                                        {% else %}
+                                            <span class="badge bg-danger">Inactive</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ student.date_joined|date:"M d, Y" }}</td>
+                                    <td>
+                                        <div class="btn-group btn-group-sm" role="group">
+                                            <a href="{% url 'users:edit_user' student.id %}" class="btn btn-outline-primary btn-sm" title="Edit">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <a href="{% url 'users:toggle_user_status' student.id %}" class="btn btn-outline-warning btn-sm" 
+                                               onclick="return confirm('Are you sure you want to {% if student.is_active %}deactivate{% else %}activate{% endif %} this user?')" title="{% if student.is_active %}Deactivate{% else %}Activate{% endif %}">
+                                                <i class="fas fa-{% if student.is_active %}ban{% else %}check{% endif %}"></i>
+                                            </a>
+                                            <a href="{% url 'users:delete_user' student.id %}" class="btn btn-outline-danger btn-sm" title="Delete">
+                                                <i class="fas fa-trash"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="6" class="text-center text-muted">No students found</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

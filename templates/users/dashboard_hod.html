@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1>HOD Dashboard</h1>
+                <div>
+                    <a href="{% url 'users:profile' %}" class="btn btn-outline-secondary me-2">
+                        <i class="fas fa-user"></i> My Profile
+                    </a>
+                    <a href="{% url 'users:create_faculty' %}" class="btn btn-success me-2">Create Faculty</a>
+                    <a href="{% url 'materials:news_create' %}" class="btn btn-primary">Create Announcement</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card mb-4">
+                <div class="card-body text-center">
+                    <h5>Faculty Members</h5>
+                    <p class="h3 text-primary">{{ faculty_count|default:0 }}</p>
+                    <a href="{% url 'users:user_list' %}" class="btn btn-sm btn-outline-primary">View All</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card mb-4">
+                <div class="card-body text-center">
+                    <h5>Total Students</h5>
+                    <p class="h3 text-success">{{ student_count|default:0 }}</p>
+                    <a href="{% url 'users:user_list' %}" class="btn btn-sm btn-outline-success">View All</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card mb-4">
+                <div class="card-body text-center">
+                    <h5>Active Quizzes</h5>
+                    <p class="h3 text-info">{{ quiz_count|default:0 }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h4>Recent Results</h4>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group">
+                        {% for res in recent_results %}
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>{{ res.user.username }} – {{ res.quiz.title }}</span>
+                            <span class="badge bg-secondary">{{ res.score }}%</span>
+                        </li>
+                        {% empty %}
+                        <li class="list-group-item text-muted">No recent results</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h4>Latest Announcements </h4>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group">
+                        {% for ann in announcements %}
+                        <li class="list-group-item">
+                            <strong>{{ ann.title }}</strong> – {{ ann.created_at|date:"SHORT_DATE_FORMAT" }}
+                        </li>
+                        {% empty %}
+                        <li class="list-group-item text-muted">No announcements</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

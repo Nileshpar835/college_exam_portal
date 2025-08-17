@@ -1,0 +1,147 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3 col-lg-2 d-md-block bg-light sidebar">
+            <div class="position-sticky pt-3">
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'users:profile' %}">
+                            <i class="fas fa-user"></i> My Profile
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#upcoming">Upcoming Quizzes</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#materials">Study Materials</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#results">My Results</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Main content -->
+        <div class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+            <div class="pt-3 pb-2 mb-3 border-bottom d-flex justify-content-between align-items-center">
+                <h1>Welcome, {{ user.username }}</h1>
+                <a href="{% url 'users:profile' %}" class="btn btn-outline-primary">
+                    <i class="fas fa-user"></i> View Profile
+                </a>
+            </div>
+
+            <section id="upcoming" class="mb-4">
+                <h3>Available Quizzes</h3>
+                <div class="row">
+                    {% for quiz in upcoming_quizzes %}
+                    <div class="col-md-4 mb-3">
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ quiz.title }}</h5>
+                                <p>Duration: {{ quiz.duration }} minutes</p>
+                                <p>Questions: {{ quiz.question_set.count }}</p>
+                                <p>Passing Score: {{ quiz.passing_score }}%</p>
+                                
+                                {% with user_result=quiz.user_results %}
+                                    {% if user_result %}
+                                        <div class="alert alert-info mb-2">
+                                            <small>
+                                                <i class="fas fa-check-circle"></i> 
+                                                Already completed on {{ user_result.completed_at|date:"M d, Y" }}
+                                                <br>Score: {{ user_result.score }}%
+                                                {% if user_result.passed %}
+                                                    <span class="badge bg-success">Passed</span>
+                                                {% else %}
+                                                    <span class="badge bg-danger">Failed</span>
+                                                {% endif %}
+                                            </small>
+                                        </div>
+                                        <button class="btn btn-secondary w-100" disabled>
+                                            <i class="fas fa-lock"></i> Quiz Completed
+                                        </button>
+                                        <a href="{% url 'exams:quiz_result' user_result.id %}" class="btn btn-outline-primary w-100 mt-2">
+                                            <i class="fas fa-eye"></i> View Result
+                                        </a>
+                                    {% else %}
+                                        <a href="{% url 'exams:quiz_attempt' quiz.id %}" class="btn btn-primary w-100">
+                                            <i class="fas fa-play"></i> Take Quiz
+                                        </a>
+                                    {% endif %}
+                                {% endwith %}
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="col-12">
+                        <div class="alert alert-info text-center">
+                            <h5>No quizzes available</h5>
+                            <p>Check back later for new quizzes from your instructors.</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </section>
+
+            <section id="materials" class="mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h3>Study Materials</h3>
+                    <a href="{% url 'materials:material_list' %}" class="btn btn-primary">View All Materials</a>
+                </div>
+                <div class="list-group">
+                    {% for material in materials %}
+                    <a href="{{ material.file_url }}" class="list-group-item list-group-item-action" target="_blank">
+                        <h5 class="mb-1">{{ material.title }}</h5>
+                        <p class="mb-1">{{ material.description }}</p>
+                        <small>Uploaded: {{ material.created_at|date }}</small>
+                    </a>
+                    {% endfor %}
+                </div>
+            </section>
+
+            <section id="results" class="mb-4">
+                <h3>My Quiz Results</h3>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Quiz</th>
+                                <th>Score</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for result in user_results %}
+                            <tr>
+                                <td>{{ result.quiz.title }}</td>
+                                <td>{{ result.score }}%</td>
+                                <td>
+                                    {% if result.passed %}
+                                        <span class="badge bg-success">Passed</span>
+                                    {% else %}
+                                        <span class="badge bg-danger">Failed</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ result.completed_at|date }}</td>
+                                <td>
+                                    <a href="{% url 'exams:quiz_result' result.id %}" class="btn btn-sm btn-outline-primary">View Details</a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="text-center text-muted">No quiz results yet</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+    </div>
+</div>
+{% endblock %}

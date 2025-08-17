@@ -1,0 +1,285 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h3>{{ quiz.title }}</h3>
+                </div>
+                <div class="card-body">
+                    <form method="post" id="quizForm">
+                        {% csrf_token %}
+                        {% for question in quiz.question_set.all %}
+                        <div class="question-card mb-4">
+                            <h5>{{ forloop.counter }}. {{ question.text }}</h5>
+                            <div class="options mt-3">
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="radio" name="q{{ question.id }}" id="q{{ question.id }}_1" value="1">
+                                    <label class="form-check-label" for="q{{ question.id }}_1">
+                                        A) {{ question.option_1 }}
+                                    </label>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="radio" name="q{{ question.id }}" id="q{{ question.id }}_2" value="2">
+                                    <label class="form-check-label" for="q{{ question.id }}_2">
+                                        B) {{ question.option_2 }}
+                                    </label>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="radio" name="q{{ question.id }}" id="q{{ question.id }}_3" value="3">
+                                    <label class="form-check-label" for="q{{ question.id }}_3">
+                                        C) {{ question.option_3 }}
+                                    </label>
+                                </div>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="radio" name="q{{ question.id }}" id="q{{ question.id }}_4" value="4">
+                                    <label class="form-check-label" for="q{{ question.id }}_4">
+                                        D) {{ question.option_4 }}
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                        
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-success btn-lg" onclick="return confirm('Are you sure you want to submit? You cannot change your answers after submission.')">
+                                Submit Quiz
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card position-sticky" style="top: 20px;">
+                <div class="card-header bg-info text-white">
+                    <h5>Quiz Info</h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-warning">
+                        <strong>Time Remaining:</strong><br>
+                        <span id="timer" class="fs-4"></span>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <strong>Total Questions:</strong> {{ quiz.question_set.count }}<br>
+                        <strong>Duration:</strong> {{ quiz.duration }} minutes<br>
+                        <strong>Passing Score:</strong> {{ quiz.passing_score }}%
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <small>
+                            <strong>Instructions:</strong><br>
+                            • Select one answer for each question<br>
+                            • You cannot change answers after submission<br>
+                            • Quiz will auto-submit when time expires<br>
+                            • <strong class="text-danger">Do not switch tabs - First switch shows warning, second switch auto-submits!</strong>
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tab Switch Warning Modal -->
+<div class="modal fade" id="tabSwitchModal" tabindex="-1" aria-labelledby="tabSwitchModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-warning">
+            <div class="modal-header bg-warning text-dark">
+                <h5 class="modal-title" id="tabSwitchModalLabel">
+                    <i class="fas fa-exclamation-triangle"></i> Warning!
+                </h5>
+            </div>
+            <div class="modal-body text-center">
+                <div class="alert alert-danger">
+                    <h6><strong>Tab Switching Detected!</strong></h6>
+                    <p class="mb-2">You have switched away from the quiz tab. This is your <strong>FIRST AND ONLY WARNING</strong>.</p>
+                    <p class="mb-0"><strong class="text-danger">If you switch tabs again, your quiz will be automatically submitted!</strong></p>
+                </div>
+                <p class="text-muted">Please stay on this tab to continue your quiz safely.</p>
+            </div>
+            <div class="modal-footer justify-content-center">
+                <button type="button" class="btn btn-primary" onclick="acknowledgeWarning()">
+                    I Understand - Continue Quiz
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+/* =============================
+   QUIZ SECURITY SCRIPT
+   ============================= */
+
+// Quiz Timer
+let timeLeft = parseInt("{{ quiz.duration|default:0 }}") * 60;
+const timerElement = document.getElementById('timer');
+let isSubmitted = false;
+let timer;
+
+// Tab switching variables
+let tabSwitchCount = 0;
+let hasWarningBeenShown = false;
+let warningModal;
+
+// Multi-tab/session lock
+const QUIZ_KEY = "quiz_active";
+const channel = new BroadcastChannel("quiz_channel");
+
+// ========== MULTIPLE TAB PROTECTION ==========
+// If another tab announces it's active → close this one
+channel.onmessage = (e) => {
+    if (e.data === "active") {
+        alert("Quiz is already open in another window/tab. This tab will be closed.");
+        window.open('', '_self').close();  // attempt to close
+        window.location.href = "/";        // fallback redirect
+    }
+};
+
+// If already active in localStorage → block
+if (localStorage.getItem(QUIZ_KEY) === "true") {
+    alert("You already have the quiz open in another window/tab.");
+    window.open('', '_self').close();
+    window.location.href = "/";
+} else {
+    localStorage.setItem(QUIZ_KEY, "true");
+    channel.postMessage("active");
+}
+
+// Clear lock on unload
+window.addEventListener("beforeunload", () => {
+    localStorage.removeItem(QUIZ_KEY);
+    channel.close();
+});
+
+// ========== TIMER ==========
+function updateTimer() {
+    const minutes = Math.floor(timeLeft / 60);
+    const seconds = timeLeft % 60;
+    timerElement.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+    
+    if (timeLeft <= 300) { // <5 minutes
+        timerElement.parentElement.className = 'alert alert-danger';
+    } else if (timeLeft <= 600) { // <10 minutes
+        timerElement.parentElement.className = 'alert alert-warning';
+    }
+    
+    if (timeLeft <= 0) {
+        if (!isSubmitted) {
+            isSubmitted = true;
+            clearInterval(timer);
+            alert('Time is up! Submitting quiz automatically.');
+            submitQuiz('time_up');
+        }
+        return;
+    }
+    timeLeft--;
+}
+
+// ========== TAB SWITCH DETECTION ==========
+function handleVisibilityChange() {
+    if (isSubmitted) return;
+    if (document.hidden) {
+        tabSwitchCount++;
+        if (tabSwitchCount === 1 && !hasWarningBeenShown) {
+            hasWarningBeenShown = true;
+            setTimeout(() => { warningModal.show(); }, 100);
+        } else if (tabSwitchCount >= 2) {
+            isSubmitted = true;
+            clearInterval(timer);
+            submitQuiz('tab_switch_violation');
+        }
+    }
+}
+
+function acknowledgeWarning() {
+    warningModal.hide();
+    window.focus();
+}
+
+// ========== QUIZ SUBMIT ==========
+function submitQuiz(reason = 'manual') {
+    const form = document.getElementById('quizForm');
+    const reasonInput = document.createElement('input');
+    reasonInput.type = 'hidden';
+    reasonInput.name = 'submission_reason';
+    reasonInput.value = reason;
+    form.appendChild(reasonInput);
+
+    if (reason === 'tab_switch_violation') {
+        alert('Quiz auto-submitted due to tab switching violation!');
+    } else if (reason === 'time_up') {
+        alert('Time is up! Submitting quiz automatically.');
+    }
+    form.submit();
+}
+
+// ========== SECURITY HOOKS ==========
+
+// Initialize modal
+document.addEventListener('DOMContentLoaded', function() {
+    warningModal = new bootstrap.Modal(document.getElementById('tabSwitchModal'));
+});
+
+// Visibility / focus detection
+document.addEventListener('visibilitychange', handleVisibilityChange);
+window.addEventListener('blur', function() {
+    if (!isSubmitted && !document.hidden) handleVisibilityChange();
+});
+window.addEventListener('focus', function() {
+    if (!isSubmitted && tabSwitchCount > 0) {
+        console.log('User returned to quiz tab');
+    }
+});
+
+// Start timer
+updateTimer();
+timer = setInterval(updateTimer, 1000);
+
+// Prevent accidental reload/close
+window.addEventListener('beforeunload', function(e) {
+    if (timeLeft > 0 && !isSubmitted) {
+        e.preventDefault();
+        e.returnValue = 'Are you sure you want to leave? Your quiz progress will be lost.';
+    }
+});
+
+// On manual submit → stop timer
+document.getElementById('quizForm').addEventListener('submit', function() {
+    isSubmitted = true;
+    clearInterval(timer);
+    localStorage.removeItem(QUIZ_KEY);
+    channel.close();
+});
+
+// Block right-click
+document.addEventListener('contextmenu', function(e) {
+    e.preventDefault();
+    return false;
+});
+
+// Block common DevTools keys
+document.addEventListener('keydown', function(e) {
+    if (
+        e.keyCode == 123 || // F12
+        (e.ctrlKey && e.shiftKey && e.keyCode == 73) || // Ctrl+Shift+I
+        (e.ctrlKey && e.shiftKey && e.keyCode == 74) || // Ctrl+Shift+J
+        (e.ctrlKey && e.keyCode == 85) ||               // Ctrl+U
+        (e.ctrlKey && e.shiftKey && e.keyCode == 83)    // Ctrl+Shift+S
+    ) {
+        e.preventDefault();
+        return false;
+    }
+    if (e.altKey && e.keyCode == 9) { // Alt+Tab (partial)
+        e.preventDefault();
+        return false;
+    }
+});
+</script>
+
+{% endblock %}

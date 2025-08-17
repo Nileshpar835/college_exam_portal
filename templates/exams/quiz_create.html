@@ -1,0 +1,207 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Create New Quiz</h3>
+                </div>
+                <div class="card-body">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                    
+                    <form method="post" id="quiz-form">
+                        {% csrf_token %}
+                        
+                        <!-- Quiz Basic Information -->
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="{{ form.title.id_for_label }}" class="form-label">Quiz Title</label>
+                                    {{ form.title }}
+                                    {% if form.title.errors %}
+                                        <div class="text-danger small">{{ form.title.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="mb-3">
+                                    <label for="{{ form.duration.id_for_label }}" class="form-label">Duration (minutes)</label>
+                                    {{ form.duration }}
+                                    {% if form.duration.errors %}
+                                        <div class="text-danger small">{{ form.duration.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="mb-3">
+                                    <label for="{{ form.passing_score.id_for_label }}" class="form-label">Passing Score (%)</label>
+                                    {{ form.passing_score }}
+                                    {% if form.passing_score.errors %}
+                                        <div class="text-danger small">{{ form.passing_score.errors.0 }}</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="{{ form.description.id_for_label }}" class="form-label">Description</label>
+                            {{ form.description }}
+                            {% if form.description.errors %}
+                                <div class="text-danger small">{{ form.description.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Questions Section -->
+                        <div class="mb-4">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h4>Questions</h4>
+                                <button type="button" class="btn btn-success" onclick="addQuestion()">Add Question</button>
+                            </div>
+                            
+                            <div id="questions-container">
+                                <div class="question-form border p-3 mb-3" data-question-index="0">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <h5>Question 1</h5>
+                                        <button type="button" class="btn btn-danger btn-sm" onclick="removeQuestion(this)">Remove</button>
+                                    </div>
+                                    
+                                    <div class="mb-3">
+                                        <label class="form-label">Question Text</label>
+                                        <textarea name="questions-0-text" class="form-control" rows="3" required></textarea>
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Option 1</label>
+                                            <input type="text" name="questions-0-option_1" class="form-control" required>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Option 2</label>
+                                            <input type="text" name="questions-0-option_2" class="form-control" required>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Option 3</label>
+                                            <input type="text" name="questions-0-option_3" class="form-control" required>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Option 4</label>
+                                            <input type="text" name="questions-0-option_4" class="form-control" required>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Correct Answer</label>
+                                            <select name="questions-0-correct_answer" class="form-control" required>
+                                                <option value="">Select correct option</option>
+                                                <option value="1">Option 1</option>
+                                                <option value="2">Option 2</option>
+                                                <option value="3">Option 3</option>
+                                                <option value="4">Option 4</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label">Marks</label>
+                                            <input type="number" name="questions-0-marks" class="form-control" value="1" min="1" required>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-primary btn-lg">Create Quiz</button>
+                            <a href="{% url 'exams:quiz_list' %}" class="btn btn-secondary btn-lg">Cancel</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let questionIndex = 1;
+
+function addQuestion() {
+    const container = document.getElementById('questions-container');
+    const questionDiv = document.createElement('div');
+    questionDiv.className = 'question-form border p-3 mb-3';
+    questionDiv.setAttribute('data-question-index', questionIndex);
+    
+    questionDiv.innerHTML = `
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5>Question ${questionIndex + 1}</h5>
+            <button type="button" class="btn btn-danger btn-sm" onclick="removeQuestion(this)">Remove</button>
+        </div>
+        
+        <div class="mb-3">
+            <label class="form-label">Question Text</label>
+            <textarea name="questions-${questionIndex}-text" class="form-control" rows="3" required></textarea>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label class="form-label">Option 1</label>
+                <input type="text" name="questions-${questionIndex}-option_1" class="form-control" required>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label class="form-label">Option 2</label>
+                <input type="text" name="questions-${questionIndex}-option_2" class="form-control" required>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label class="form-label">Option 3</label>
+                <input type="text" name="questions-${questionIndex}-option_3" class="form-control" required>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label class="form-label">Option 4</label>
+                <input type="text" name="questions-${questionIndex}-option_4" class="form-control" required>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label class="form-label">Correct Answer</label>
+                <select name="questions-${questionIndex}-correct_answer" class="form-control" required>
+                    <option value="">Select correct option</option>
+                    <option value="1">Option 1</option>
+                    <option value="2">Option 2</option>
+                    <option value="3">Option 3</option>
+                    <option value="4">Option 4</option>
+                </select>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label class="form-label">Marks</label>
+                <input type="number" name="questions-${questionIndex}-marks" class="form-control" value="1" min="1" required>
+            </div>
+        </div>
+    `;
+    
+    container.appendChild(questionDiv);
+    questionIndex++;
+}
+
+function removeQuestion(button) {
+    const questionForm = button.closest('.question-form');
+    questionForm.remove();
+    updateQuestionNumbers();
+}
+
+function updateQuestionNumbers() {
+    const questions = document.querySelectorAll('.question-form');
+    questions.forEach((question, index) => {
+        const header = question.querySelector('h5');
+        header.textContent = `Question ${index + 1}`;
+    });
+}
+</script>
+{% endblock %}

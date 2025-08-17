@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-3">
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5>Faculty Members</h5>
+                <p class="h3">{{ faculty_count }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5>Total Students</h5>
+                <p class="h3">{{ student_count }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5>Active Quizzes</h5>
+                <p class="h3">{{ quiz_count }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-6">
+        <h4>Recent Results</h4>
+        <!-- Results table here -->
+    </div>
+    <div class="col-md-6">
+        <h4>Latest Announcements</h4>
+        <!-- News list here -->
+    </div>
+</div>
+{% endblock %}

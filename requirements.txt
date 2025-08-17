@@ -1,0 +1,18 @@
+# Core framework
+Django
+
+# Database
+psycopg2-binary
+dj-database-url
+
+# Supabase
+supabase-py
+
+# Environment variables
+python-dotenv
+
+# Static files
+whitenoise
+
+# Testing
+pytest-django

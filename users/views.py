@@ -142,6 +142,12 @@ def verify_email(request, token):
         messages.error(request, 'Invalid verification link.')
     return redirect('users:login')
 
+def access_denied(request):
+    """
+    Safe page for unauthorized access attempts.
+    """
+    return render(request, 'users/access_denied.html')
+
 
 @login_required
 def dashboard(request):
@@ -191,8 +197,8 @@ def dashboard(request):
     return render(request, template_name, context)
 
 
+
 # new view for HOD to create faculty
-@login_required
 @login_required
 def create_faculty(request):
     """
@@ -200,8 +206,8 @@ def create_faculty(request):
     """
     if request.user.role != 'HOD':
         messages.error(request, 'Unauthorized')
-        return redirect('users:dashboard')
-
+        return redirect('users:access_denied')
+    
     if request.method == 'POST':
         form = CustomUserCreationForm(request.POST)
         if form.is_valid():
@@ -252,7 +258,7 @@ def edit_user(request, user_id):
     """
     if request.user.role != 'HOD':
         messages.error(request, 'Unauthorized access.')
-        return redirect('users:dashboard')
+        return redirect('users:access_denied')
     
     user_to_edit = get_object_or_404(CustomUser, id=user_id)
     
@@ -293,7 +299,7 @@ def delete_user(request, user_id):
     """
     if request.user.role != 'HOD':
         messages.error(request, 'Unauthorized access.')
-        return redirect('users:dashboard')
+        return redirect('users:access_denied')
     
     user_to_delete = get_object_or_404(CustomUser, id=user_id)
     
@@ -321,7 +327,7 @@ def toggle_user_status(request, user_id):
     """
     if request.user.role != 'HOD':
         messages.error(request, 'Unauthorized access.')
-        return redirect('users:dashboard')
+        return redirect('users:access_denied')
     
     user_to_toggle = get_object_or_404(CustomUser, id=user_id)
     
@@ -349,7 +355,7 @@ def user_list(request):
     """
     if request.user.role != 'HOD':
         messages.error(request, 'Unauthorized access.')
-        return redirect('users:dashboard')
+        return redirect('users:access_denied')
     
     faculty_list = CustomUser.objects.filter(role='FACULTY').order_by('username')
     student_list = CustomUser.objects.filter(role='STUDENT').order_by('username')

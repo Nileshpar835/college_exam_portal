@@ -185,6 +185,7 @@ def dashboard(request):
             'upcoming_quizzes': upcoming_quizzes,
             'materials': StudyMaterial.objects.order_by('-created_at')[:10],
             'user_results': Result.objects.filter(user=request.user).order_by('-completed_at')[:10],
+            'announcements': News.objects.order_by('-created_at')[:10],
         })
 
     return render(request, template_name, context)

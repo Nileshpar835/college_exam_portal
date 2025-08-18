@@ -52,11 +52,11 @@ def register(request):
                     'username': user.username,
                     'verify_url': verify_url,
                 })
-                # text_content = strip_tags(html_content)  # Plain text fallback
+                text_content = strip_tags(html_content)  # Plain text fallback
 
                 email = EmailMultiAlternatives(
                     subject=subject,
-                    body="",
+                    body=text_content,
                     from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', settings.EMAIL_HOST_USER),
                     to=[user.email],
                 )
@@ -256,11 +256,11 @@ def create_faculty(request):
                     'username': user.username,
                     'verify_url': verify_url,
                 })
-                # text_content = strip_tags(html_content)
+                text_content = strip_tags(html_content)
 
                 email = EmailMultiAlternatives(
                     subject=subject,
-                    body="",
+                    body=text_content,
                     from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', settings.EMAIL_HOST_USER),
                     to=[user.email],
                 )
